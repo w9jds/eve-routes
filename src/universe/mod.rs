@@ -31,13 +31,11 @@ impl Universe {
   //     });
   // }
 
-  pub fn distance(&self, start: &u32, end: &u32) -> u32 {
+  pub fn distance(&self, start: &u32, end: &u32) -> f64 {
     let left = self.systems.get(start).unwrap().coord();
     let right = self.systems.get(end).unwrap().coord();
 
-    let distance = (((right.0 - left.0).powf(2.0)) + ((right.1 - left.1).powf(2.0)) + ((right.2 - left.2).powf(2.0))).sqrt();
-
-    (distance * 0.0000000001).round() as u32
+    (((right.0 - left.0).powf(2.0)) + ((right.1 - left.1).powf(2.0)) + ((right.2 - left.2).powf(2.0))).sqrt()
   }
 
   pub fn successors(&self, id: &u32, weight: RouteType, avoid: Vec<u32>) -> Vec<(u32, u32)> {

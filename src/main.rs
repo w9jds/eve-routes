@@ -8,18 +8,35 @@ thread_local!(static universe: Universe = load_universe());
 fn main() {
    universe.with(|map| {
 
-      let end = &30003794;
+      let end = &30005244;
+      let start = &30000142;
       let weight = RouteType::Shortest;
       let avoid = vec![];
 
-      let result = astar(&30001393, |id| map.successors(id, weight, avoid.clone()), |id| map.distance(id, end), |id| id == end);
+      let route = calculate_route(map, start, end, weight, avoid);
 
-      // let names: Vec<String> = result.unwrap().0
-      //    .clone()
-      //    .into_iter()
-      //    .map(|id| map.systems.get(&id).unwrap().name)
-      //    .collect();
+      let systems: Vec<&universe::solar_system::SolarSystem> = route
+         .clone()
+         .into_iter()
+         .map(|id| map.systems.get(&id).unwrap())
+         .collect();
 
       println!("Universe Loaded");
    })
 }
+
+fn calculate_route(map: &Universe, start: &u32, end: &u32, weight: RouteType, avoid: Vec<u32>) -> Vec<u32> {
+   let optimal_route = map.distance(start, end);
+
+   let result = astar(start, |id| map.successors(id, weight, avoid.clone()), |id| {
+      let difference = optimal_route - map.distance(id, end);
+      (format!("{}", difference).chars().count()) as u32
+   }, |id| id == end);
+
+   result.unwrap().0
+}
+
+fn heuristic() {
+
+}
+
