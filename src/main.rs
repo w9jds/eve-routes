@@ -10,15 +10,15 @@ fn main() {
 
       let end = &30005244;
       let start = &30000142;
-      let weight = RouteType::Shortest;
+      let weight = RouteType::LessSafe;
       let avoid = vec![];
 
       let route = calculate_route(map, start, end, weight, avoid);
 
-      let systems: Vec<&universe::solar_system::SolarSystem> = route
+      let systems: Vec<String> = route
          .clone()
          .into_iter()
-         .map(|id| map.systems.get(&id).unwrap())
+         .map(|id| map.systems.get(&id).unwrap().name.clone())
          .collect();
 
       println!("Universe Loaded");

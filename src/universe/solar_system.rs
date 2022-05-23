@@ -1,7 +1,7 @@
 use serde::Deserialize;
 use crate::universe::RouteType;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct SolarSystem {
   pub name: String,
   pub security: f64,
