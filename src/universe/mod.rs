@@ -3,6 +3,7 @@ pub mod solar_system;
 use solar_system::SolarSystem;
 use std::collections::HashMap;
 use pathfinding::prelude::{astar};
+use std::error::Error;
 
 #[derive(Debug, Copy, Clone)]
 pub enum RouteType {
@@ -35,6 +36,23 @@ impl Universe {
     system.calculate_weight(weight)
   }
 
+  pub fn add_connections(&mut self, connections: &Vec<(u32, u32)>) {
+    for (left, right) in connections {
+      if self.systems.contains_key(&left) {
+        let system = self.systems.get_mut(&left).unwrap();
+        if !system.neighbors.contains(&left) {
+          system.neighbors.push(left.clone());
+        }
+      }
+      if self.systems.contains_key(&right) {
+        let system = self.systems.get_mut(&right).unwrap();
+        if !system.neighbors.contains(&right) {
+          system.neighbors.push(right.clone());
+        }
+      }
+    }
+  }
+
   pub fn distance(&self, start: &u32, end: &u32) -> f64 {
     let left = self.systems.get(start).unwrap().coord();
     let right = self.systems.get(end).unwrap().coord();
@@ -60,8 +78,19 @@ impl Universe {
        (format!("{}", difference).chars().count()) as u32
     }, |id| id == end);
 
-    result.unwrap().0
+    if result.is_some() {
+      result.unwrap().0
+    } else {
+      vec!()
+    }
   }
+
+  // pub fn calculate_route_d(&self, start: &u32, end: &u32, weight: RouteType, avoid: Vec<u32>) -> Vec<u32> {
+  //   let map = self.clone();
+
+
+  //   vec!()
+  // }
 
   pub async fn route(&self, start: u32, end: u32, weight: RouteType, avoid: Vec<u32>) -> Result<Vec<u32>, ()> {
     let destination = end.to_owned();
