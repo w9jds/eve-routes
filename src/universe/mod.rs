@@ -3,7 +3,6 @@ pub mod solar_system;
 use solar_system::SolarSystem;
 use std::collections::HashMap;
 use pathfinding::prelude::{astar};
-use std::fs;
 
 #[derive(Debug, Copy, Clone)]
 pub enum RouteType {
@@ -12,8 +11,8 @@ pub enum RouteType {
   LessSafe,
 }
 
-pub fn get_route_type(input: &str) -> RouteType {
-  match input {
+pub fn get_route_type(input: String) -> RouteType {
+  match input.as_str() {
     "secure" => RouteType::Safest,
     "less-safe" => RouteType::LessSafe,
     _ => RouteType::Shortest,
@@ -35,15 +34,6 @@ impl Universe {
     let system = self.systems.get(id).unwrap();
     system.calculate_weight(weight)
   }
-
-  // pub fn add_connections(&self, connections: Vec<(u32, u32)>) {
-  //   connections
-  //     .into_iter()
-  //     .for_each(|connection| {
-  //       self.systems.get(&connection.0).unwrap().neighbors.push(connection.1);
-  //       self.systems.get(&connection.1).unwrap().neighbors.push(connection.0);
-  //     });
-  // }
 
   pub fn distance(&self, start: &u32, end: &u32) -> f64 {
     let left = self.systems.get(start).unwrap().coord();
@@ -73,8 +63,9 @@ impl Universe {
     result.unwrap().0
   }
 
-  pub async fn route(&self, start: &u32, end: &u32, weight: RouteType, avoid: Vec<u32>) -> Result<Vec<u32>, ()> {
-    Ok(self.calculate_route(start, end, weight, avoid))
+  pub async fn route(&self, start: u32, end: u32, weight: RouteType, avoid: Vec<u32>) -> Result<Vec<u32>, ()> {
+    let destination = end.to_owned();
+    Ok(self.calculate_route(&start, &destination, weight, avoid))
   }
 }
 

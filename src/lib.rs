@@ -1,7 +1,8 @@
 mod universe;
 
-use futures::{future::join_all};
-use universe::{get_route_type, Universe};
+use std::sync::Arc;
+use futures::{future::{join_all, Future}};
+use universe::{get_route_type, RouteType, Universe};
 use wasm_bindgen::prelude::*;
 
 static matrix: &str = include_str!("../data/system_map.json");
@@ -13,30 +14,30 @@ extern "C" {
 }
 
 #[wasm_bindgen]
-pub async fn calc_route(start: u32, destination: u32, route_type: &str, avoid: Vec<u32>) -> String  {
+pub async fn calc_route(start: u32, destination: u32, route_type: String, avoid: Vec<u32>) -> String  {
   let map = Universe::new(matrix);
   let weight = get_route_type(route_type);
 
-  let route = map.route(&start, &destination, weight, avoid.clone()).await.unwrap();
+  let route = map.route(start, destination, weight, avoid.clone()).await.unwrap();
 
   serde_json::to_string(&route).unwrap()
 }
 
 #[wasm_bindgen]
-pub async fn calc_routes(start: u32, destinations: Vec<u32>, route_type: &str, avoid: Vec<u32>) -> String {
+pub async fn calc_routes(start: u32, destinations: Vec<u32>, route_type: String, avoid: Vec<u32>) -> String {
   let map = Universe::new(matrix);
   let weight = get_route_type(route_type);
   let mut futures = vec!();
+  let ends = destinations.to_owned();
 
-  for id in destinations {
-    futures.push(map.route(&start, &end, weight, avoid.clone()));
+  for id in ends {
+    futures.push(map.route(start, id, weight, avoid.clone()))
   }
 
   let routes: Vec<Vec<u32>> = join_all(futures).await
     .into_iter()
-    .map(|result| result.unwrap())
+    .map(|result: Result<Vec<u32>, ()>| result.unwrap())
     .collect();
 
   serde_json::to_string(&routes).unwrap()
 }
-
