@@ -2,6 +2,7 @@ pub mod solar_system;
 
 use solar_system::SolarSystem;
 use std::collections::HashMap;
+use pathfinding::prelude::{astar};
 use std::fs;
 
 #[derive(Debug, Copy, Clone)]
@@ -11,11 +12,24 @@ pub enum RouteType {
   LessSafe,
 }
 
+pub fn get_route_type(input: &str) -> RouteType {
+  match input {
+    "secure" => RouteType::Safest,
+    "less-safe" => RouteType::LessSafe,
+    _ => RouteType::Shortest,
+  }
+}
+
 pub struct Universe {
   pub systems: HashMap<u32, SolarSystem>
 }
 
 impl Universe {
+  pub fn new(input: &str) -> Universe {
+    Universe{
+      systems: serde_json::from_str(input).unwrap()
+    }
+  }
 
   fn weight(&self, id: &u32, weight: RouteType) -> u32 {
     let system = self.systems.get(id).unwrap();
@@ -46,13 +60,21 @@ impl Universe {
       .map(|id| (id, self.weight(&id, weight)))
       .collect()
   }
-}
 
-pub fn load_universe() -> Universe {
-  let jump_map = fs::read_to_string("./data/system_map.json").unwrap();
+  pub fn calculate_route(&self, start: &u32, end: &u32, weight: RouteType, avoid: Vec<u32>) -> Vec<u32> {
+    let map = self.clone();
+    let optimal_route = map.distance(start, end);
 
-  Universe{
-    systems: serde_json::from_str(&jump_map).unwrap()
+    let result = astar(start, |id| map.successors(id, weight, avoid.clone()), |id| {
+       let difference = optimal_route - map.distance(id, end);
+       (format!("{}", difference).chars().count()) as u32
+    }, |id| id == end);
+
+    result.unwrap().0
+  }
+
+  pub async fn route(&self, start: &u32, end: &u32, weight: RouteType, avoid: Vec<u32>) -> Result<Vec<u32>, ()> {
+    Ok(self.calculate_route(start, end, weight, avoid))
   }
 }
 

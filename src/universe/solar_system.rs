@@ -1,5 +1,5 @@
-use serde::Deserialize;
 use crate::universe::RouteType;
+use serde::Deserialize;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct SolarSystem {
@@ -12,7 +12,6 @@ pub struct SolarSystem {
 }
 
 impl SolarSystem {
-
   pub fn coord(&self) -> (f64, f64, f64) {
     (self.x, self.y, self.z)
   }
@@ -20,8 +19,8 @@ impl SolarSystem {
   pub fn calculate_weight(&self, weight: RouteType) -> u32 {
     match weight {
       RouteType::Shortest => 1,
-      RouteType::Safest => if self.security < 0.45 { 50000 } else { 1 },
-      RouteType::LessSafe => if self.security >= 0.45 { 50000 } else { 1 },
+      RouteType::Safest => if self.security < 0.45 { 50000 } else { 1 }
+      RouteType::LessSafe => if self.security >= 0.45 { 50000 } else { 1 }
     }
   }
 
@@ -32,5 +31,4 @@ impl SolarSystem {
       .filter(|id| !avoid.contains(id))
       .collect()
   }
-
 }
