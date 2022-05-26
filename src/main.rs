@@ -1,60 +1,31 @@
-// #[macro_use]
-// extern crate lazy_static;
-
 mod universe;
 
 // use std::sync::{Arc,Mutex};
 // use wasm_bindgen::prelude::*;
-// use futures::{future::join_all};
-// use universe::{load_universe, Universe, RouteType};
+use futures::{future::join_all};
+use universe::{Universe, RouteType};
 
-// lazy_static! {
-//    pub static ref UNIVERSE: Arc<Mutex<Universe>> = Arc::new(Mutex::new(load_universe()));
-// }
+static MATRIX: &str = include_str!("../data/system_map.json");
 
 // #[tokio::main]
-// async fn main() {
-//    let routes = vec!(
-//       (&30000142, &30005244, RouteType::Shortest, vec![]),
-//       (&30000142, &30005244, RouteType::LessSafe, vec![]),
-//       (&30000142, &30005244, RouteType::Safest, vec![]),
-//    );
-
-//    let results = calc_routes(routes).await;
-
-//    let answers: Vec<Vec<u32>> = results
-//       .clone()
-//       .into_iter()
-//       .map(|result| result.unwrap()
-//       )
-//       .collect();
-
-//    let names: Vec<Vec<String>> = results
-//       .clone()
-//       .into_iter()
-//       .map(|result| result
-//          .unwrap()
-//          .into_iter()
-//          .map(|id| UNIVERSE.lock().unwrap().systems.get(&id).unwrap().name.clone())
-//          .collect()
-//       )
-//       .collect();
-
-//    println!("{:?}", answers);
-//    println!("{:?}", names);
-// }
-
-// async fn calc_routes(routes: Vec<(&u32, &u32, RouteType, Vec<u32>)>) -> Vec<Result<Vec<u32>, ()>> {
-//    let map = UNIVERSE.lock().unwrap();
-//    let mut futures = vec!();
-
-//    for (start, end, weight, avoid) in routes {
-//       futures.push(map.calculate_route(start, end, weight, avoid));
-//    }
-
-//    join_all(futures).await
-// }
-
 fn main() {
+  let mut map = Universe::new(MATRIX);
 
+  // "30000142", "30002187", "30003794", "30002053", "30005063", "30002512"
+
+  let start = 31001257;
+  let destination = 30002512;
+  let ignore = vec!();
+
+  let weight = RouteType::Shortest;
+
+  let additions = "[[30003877,30004617],[30003877,31000542],[31000542,31001756],[31000542,30002518],[31000542,31001257],[31001756,31001464],[31001464,31002326],[31001464,31000129],[31000129,31002146],[31002146,30003231],[31002146,30002639]]";
+  let connections: Vec<(u32, u32)> = serde_json::from_str(additions).unwrap();
+  map.add_connections(&connections);
+
+  let routes = map.calculate_route(&start, &destination, weight, ignore.clone());
+
+  println!("{:?}", routes);
 }
+
+

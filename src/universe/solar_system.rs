@@ -4,10 +4,15 @@ use serde::Deserialize;
 #[derive(Deserialize, Debug, Clone)]
 pub struct SolarSystem {
   pub name: String,
+
   pub security: f64,
+
   pub neighbors: Vec<u32>,
+
   pub x: f64,
+
   pub y: f64,
+
   pub z: f64,
 }
 

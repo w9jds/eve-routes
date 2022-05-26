@@ -3,7 +3,6 @@ pub mod solar_system;
 use solar_system::SolarSystem;
 use std::collections::HashMap;
 use pathfinding::prelude::{astar};
-use std::error::Error;
 
 #[derive(Debug, Copy, Clone)]
 pub enum RouteType {
@@ -40,14 +39,14 @@ impl Universe {
     for (left, right) in connections {
       if self.systems.contains_key(&left) {
         let system = self.systems.get_mut(&left).unwrap();
-        if !system.neighbors.contains(&left) {
-          system.neighbors.push(left.clone());
+        if !system.neighbors.contains(&right) {
+          system.neighbors.push(right.clone());
         }
       }
       if self.systems.contains_key(&right) {
         let system = self.systems.get_mut(&right).unwrap();
-        if !system.neighbors.contains(&right) {
-          system.neighbors.push(right.clone());
+        if !system.neighbors.contains(&left) {
+          system.neighbors.push(left.clone());
         }
       }
     }

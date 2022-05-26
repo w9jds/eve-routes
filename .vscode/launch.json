@@ -7,15 +7,34 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug executable 'pathfinder'",
+      "name": "Debug unit tests in library 'eve-routes'",
+      "cargo": {
+        "args": [
+          "test",
+          "--no-run",
+          "--lib",
+          "--package=eve-routes"
+        ],
+        "filter": {
+          "name": "eve-routes",
+          "kind": "lib"
+        }
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "Debug executable 'eve-routes'",
       "cargo": {
         "args": [
           "build",
-          "--bin=pathfinder",
-          "--package=pathfinder"
+          "--bin=eve-routes",
+          "--package=eve-routes"
         ],
         "filter": {
-          "name": "pathfinder",
+          "name": "eve-routes",
           "kind": "bin"
         }
       },
@@ -25,16 +44,16 @@
     {
       "type": "lldb",
       "request": "launch",
-      "name": "Debug unit tests in executable 'pathfinder'",
+      "name": "Debug unit tests in executable 'eve-routes'",
       "cargo": {
         "args": [
           "test",
           "--no-run",
-          "--bin=pathfinder",
-          "--package=pathfinder"
+          "--bin=eve-routes",
+          "--package=eve-routes"
         ],
         "filter": {
-          "name": "pathfinder",
+          "name": "eve-routes",
           "kind": "bin"
         }
       },

@@ -15,12 +15,12 @@ futures = "0.3.21"
 pathfinding = "3.0.12"
 wasm-bindgen = "0.2.80"
 wasm-bindgen-futures = "0.4.30"
+console_error_panic_hook = "0.1.7"
 
 # [dependencies.lazy_static]
 # git = "https://github.com/Kimundi/lazy-static.rs"
 
 wee_alloc = { version = "0.4.2", optional = true }
-console_error_panic_hook = { version = "0.1.1", optional = true }
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.13"
