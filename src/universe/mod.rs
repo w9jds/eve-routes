@@ -1,8 +1,8 @@
 pub mod solar_system;
 
-use solar_system::SolarSystem;
 use std::collections::HashMap;
-use pathfinding::prelude::{astar};
+use solar_system::SolarSystem;
+use pathfinding::prelude::{astar, dijkstra};
 
 #[derive(Debug, Copy, Clone)]
 pub enum RouteType {
@@ -68,19 +68,29 @@ impl Universe {
       .collect()
   }
 
-  pub fn calculate_route(&self, start: &u32, end: &u32, weight: RouteType, avoid: Vec<u32>) -> Vec<u32> {
-    let map = self.clone();
-    let optimal_route = map.distance(start, end);
+  pub async fn calculate_weighted_route(&self, start: u32, end: u32, weight: RouteType, avoid: Vec<u32>) -> Result<Vec<u32>, ()> {
+    let optimal_route = self.distance(&start, &end);
 
-    let result = astar(start, |id| map.successors(id, weight, avoid.clone()), |id| {
-       let difference = optimal_route - map.distance(id, end);
+    let result = astar(&start, |id| self.successors(id, weight, avoid.clone()), |id| {
+       let difference = optimal_route - self.distance(id, &end);
        (format!("{}", difference).chars().count()) as u32
-    }, |id| id == end);
+    }, |id| id == &end);
+
 
     if result.is_some() {
-      result.unwrap().0
+      Ok(result.unwrap().0)
     } else {
-      vec!()
+      Ok(vec!())
+    }
+  }
+
+  pub async fn calculate_route(&self, start: u32, end: u32, weight: RouteType, avoid: Vec<u32>) -> Result<Vec<u32>, ()> {
+    let result = dijkstra(&start, |id| self.successors(id, weight, avoid.clone()), |id| id == &end);
+
+    if result.is_some() {
+      Ok(result.unwrap().0)
+    } else {
+      Ok(vec!())
     }
   }
 
@@ -91,9 +101,5 @@ impl Universe {
   //   vec!()
   // }
 
-  pub async fn route(&self, start: u32, end: u32, weight: RouteType, avoid: Vec<u32>) -> Result<Vec<u32>, ()> {
-    let destination = end.to_owned();
-    Ok(self.calculate_route(&start, &destination, weight, avoid))
-  }
 }
 

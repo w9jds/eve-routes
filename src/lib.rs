@@ -4,7 +4,7 @@ extern crate console_error_panic_hook;
 use std::panic;
 
 use futures::{future::{join_all}};
-use universe::{get_route_type, Universe};
+use universe::{get_route_type, Universe, RouteType};
 use wasm_bindgen::prelude::*;
 
 static MATRIX: &str = include_str!("../data/system_map.json");
@@ -21,11 +21,11 @@ pub fn init() {
 }
 
 #[wasm_bindgen]
-pub async fn calc_route(start: u32, destination: u32, route_type: String, avoid: Vec<u32>) -> String  {
+pub async fn calc_route(start: u32, destination: u32) -> String  {
   let map = Universe::new(MATRIX);
-  let weight = get_route_type(route_type);
+  let weight = RouteType::Shortest;
 
-  let route = map.route(start, destination, weight, avoid.clone()).await.unwrap();
+  let route = map.calculate_route(start, destination, weight, vec!()).await.unwrap();
 
   serde_json::to_string(&route).unwrap()
 }
@@ -44,7 +44,7 @@ pub async fn calc_routes(start: u32, destinations: Vec<u32>, route_type: String,
   }
 
   for id in destinations {
-    futures.push(map.route(start, id, weight, ignore.clone()))
+    futures.push(map.calculate_weighted_route(start, id, weight, ignore.clone()))
   }
 
   let routes: Vec<Vec<u32>> = join_all(futures).await
