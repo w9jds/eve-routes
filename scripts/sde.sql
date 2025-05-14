@@ -1,6 +1,6 @@
 SELECT
-  systems."solarSystemID",
-  systems."solarSystemName",
+  systems."solarSystemID" as "id",
+  systems."solarSystemName" as "name",
   systems."x",
   systems."y",
   systems."z",

@@ -2,12 +2,13 @@ mod map;
 mod universe;
 
 extern crate console_error_panic_hook;
-use std::panic;
 
-use futures::{future::{join_all}};
+use std::panic;
+use futures::future::join_all;
 use universe::{get_route_type, Universe, RouteType, connection::Connection};
 use wasm_bindgen::prelude::*;
 use js_sys::Uint32Array;
+use cfg_if::cfg_if;
 
 static MATRIX: &str = include_str!("../data/system_map.json");
 
@@ -17,15 +18,22 @@ extern "C" {
   fn log(s: &str);
 }
 
-#[wasm_bindgen(start)]
-pub fn init() {
-  panic::set_hook(Box::new(console_error_panic_hook::hook));
+pub fn set_panic_hook() {
+  #[cfg(feature = "console_error_panic_hook")]
+  console_error_panic_hook::set_once();
+}
+
+cfg_if! {
+  if #[cfg(feature = "wee_alloc")] {
+    #[global_allocator]
+    static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+  }
 }
 
 #[wasm_bindgen]
 pub async fn calc_short_route(start: u32, destination: u32, additions: JsValue) -> Result<Uint32Array, JsValue> {
   let connections: Option<Vec<Connection>> = serde_wasm_bindgen::from_value(additions)?;
-  let map = Universe::new(MATRIX, &connections).await.unwrap();
+  let map = Universe::new(MATRIX, &connections).unwrap();
   let weight = RouteType::Shortest;
 
   let route = map.calculate_route(start, destination, weight, vec!()).await.unwrap();
@@ -36,7 +44,7 @@ pub async fn calc_short_route(start: u32, destination: u32, additions: JsValue) 
 #[wasm_bindgen]
 pub async fn calc_weighted_routes(start: u32, destinations: Vec<u32>, route_type: String, additions: JsValue, avoid: Option<Vec<u32>>) -> Result<JsValue, JsValue> {
   let connections: Option<Vec<Connection>> = serde_wasm_bindgen::from_value(additions)?;
-  let map = Universe::new(MATRIX, &connections).await.unwrap();
+  let map = Universe::new(MATRIX, &connections).unwrap();
   let mut futures = vec!();
 
   let ignore = if avoid.is_some() { avoid.unwrap() } else { vec!() };

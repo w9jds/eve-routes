@@ -3,12 +3,9 @@ const fs = require('fs/promises');
 
 const filePath = path.resolve(__dirname, './jump_map.json');
 
-const main = async () => {
-
+const mutate = async () => {
   const data = await fs.readFile(filePath);
-
   const info = JSON.parse(data);
-
   const map = info.reduce((out, current) => {
     out[current.id] = {
       name: current.name,
@@ -22,7 +19,11 @@ const main = async () => {
     return out;
   }, {});
 
-  fs.writeFile('../system_map.json', JSON.stringify(map));
+  fs.writeFile('./system_map.json', JSON.stringify(map));
+}
+
+const main = async () => {
+  await mutate();
 }
 
 main();
